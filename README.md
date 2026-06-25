@@ -5,6 +5,10 @@ A fully native Vulkan build of GoldenEye 007 (Xbox 360 XBLA) for Steam Deck.
 **No Proton. No VKD3D. No emulation.** Runs directly on RADV VANGOGH at ~60 FPS.
 
 
+## Screenshots / Video
+
+*(Video coming soon)*
+
 ## What makes this different?
 
 Other Linux approaches run the Windows binary through Proton, which crashes on AMD GPUs due to VKD3D rejecting a degenerate bloom texture descriptor. This build compiles natively for Linux and talks directly to Vulkan — bypassing the crash entirely.
