@@ -4,7 +4,7 @@ A fully native Vulkan build of GoldenEye 007 (Xbox 360 XBLA) for Steam Deck.
 
 **No Proton. No VKD3D. No emulation.** Runs directly on RADV VANGOGH at ~60 FPS.
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow)](https://buymeacoffee.com/YOUR_USERNAME)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow)](https://buymeacoffee.com/couchk1ng)
 
 ## What makes this different?
 
@@ -40,3 +40,10 @@ See [BUILDING.md](BUILDING.md) for full build instructions.
 - [SunJaycy](https://github.com/SunJaycy/GoldenEye-Recomp) - GoldenEye Recomp source
 - [ReXGlue SDK](https://github.com/SunJaycy/GoldenEye-Recomp-rexglue) - Xbox 360 recompilation framework
 - SDL3 team - SDL3 library
+
+
+## Support
+
+After weeks of late-night sessions debugging SDL3, fighting glibc mismatches, and tracing Steam's virtual gamepad through layers of Vulkan code, GoldenEye 007 finally runs natively on Steam Deck. If you enjoyed playing it and want to fuel future projects, a coffee would be much appreciated!
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow)](https://buymeacoffee.com/couchk1ng)
