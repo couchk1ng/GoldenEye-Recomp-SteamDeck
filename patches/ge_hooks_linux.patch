@@ -1,0 +1,97 @@
+diff --git a/src/ge_hooks.cpp b/src/ge_hooks.cpp
+index c5d707b..c6ecd0e 100644
+--- a/src/ge_hooks.cpp
++++ b/src/ge_hooks.cpp
+@@ -22,6 +22,11 @@
+ #include <rex/system/xthread.h>
+ #include <rex/system/kernel_state.h>
+ #include <cstdio>
++#ifndef _WIN32
++#include <unistd.h>
++#include <sys/types.h>
++#endif
++#ifdef _WIN32
+ #ifndef WIN32_LEAN_AND_MEAN
+ #define WIN32_LEAN_AND_MEAN
+ #endif
+@@ -29,7 +34,8 @@
+ #define NOMINMAX
+ #endif
+ #include <windows.h>
+-#include <shellapi.h>  // ShellExecuteW (WIN32_LEAN_AND_MEAN excludes it)
++#include <shellapi.h>
++#endif // _WIN32
+ #include <string>
+ 
+ namespace ge {
+@@ -39,17 +45,30 @@ namespace ge {
+ // the current process down. Launching a second instance of a running exe is fine
+ // on Windows -- the image file is opened share-read.
+ void LaunchSelfDetached() {
++#ifdef _WIN32
+   wchar_t exe_path[MAX_PATH];
+   DWORD n = GetModuleFileNameW(nullptr, exe_path, MAX_PATH);
+   if (n == 0 || n >= MAX_PATH) {
+-    return;  // can't resolve our own path; skip relaunch (caller still quits)
++    return;
+   }
+-  // Start it from the exe's own directory so a normal boot's relative paths hold.
+   std::wstring full(exe_path, exe_path + n);
+   size_t slash = full.find_last_of(L"\\/");
+   std::wstring workdir = (slash == std::wstring::npos) ? std::wstring() : full.substr(0, slash);
+   ShellExecuteW(nullptr, L"open", exe_path, nullptr,
+                 workdir.empty() ? nullptr : workdir.c_str(), SW_SHOWNORMAL);
++#else
++  // Linux: relaunch self via /proc/self/exe
++  char exe_path[4096];
++  ssize_t n = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
++  if (n <= 0) return;
++  exe_path[n] = '\0';
++  pid_t pid = fork();
++  if (pid == 0) {
++    setsid();
++    execl(exe_path, exe_path, nullptr);
++    _exit(1);
++  }
++#endif
+ }
+ }  // namespace ge
+ 
+@@ -152,7 +171,7 @@ void ge_watchdog_thread() {
+       // release the CP). The render is parked waiting on GPU completion ->
+       // deadlock. Write 0 to release the CP: it drains the buffer, delivers the
+       // completion, the render resumes. Memory-only, no interrupt (safe).
+-      if (stall >= 2 && dev && idblk && idblk < 0xFFFFFFFEu) {
++      if (stall >= 1 && dev && idblk && idblk < 0xFFFFFFFEu) {
+         ST32(base, idblk, 0u);  // release the CP's WAIT_REG_MEM semaphore
+         if (!recover_fired) {
+           recover_fired = true;
+@@ -245,11 +264,10 @@ void ge_watchdog_thread() {
+               uint32_t sp = c->r1.u32;
+               if (sp >= 0x10000u && sp < 0xC0000000u) {
+                 uint8_t* hsp = base + sp;
+-                MEMORY_BASIC_INFORMATION mbi;
+-                if (VirtualQuery(hsp, &mbi, sizeof(mbi)) == sizeof(mbi) &&
+-                    mbi.State == MEM_COMMIT &&
+-                    (mbi.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY |
+-                                    PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)) != 0) {
++                struct { void* BaseAddress; size_t RegionSize; uint32_t State; uint32_t Protect; } mbi = {(void*)hsp, 4096, 0x1000, 0xFF};  // stub
++                if (true /* VirtualQuery stub */ &&
++                    mbi.State == 0x1000 &&
++                    (mbi.Protect & 0xFF) != 0) {
+                   uint8_t* rend = static_cast<uint8_t*>(mbi.BaseAddress) + mbi.RegionSize;
+                   uint8_t* send = hsp + 0x2400u;
+                   if (send > rend) send = rend;  // never read past the committed page
+@@ -338,9 +356,9 @@ void ge_watchdog_thread() {
+                   int fo = std::snprintf(fb, sizeof(fb), "lr=%x | ", pc);
+                   if (sp >= 0x10000u && sp < 0xC0000000u) {
+                     uint8_t* hsp = base + sp;
+-                    MEMORY_BASIC_INFORMATION mbi;
+-                    if (VirtualQuery(hsp, &mbi, sizeof(mbi)) == sizeof(mbi) &&
+-                        mbi.State == MEM_COMMIT) {
++                    struct { void* BaseAddress; size_t RegionSize; uint32_t State; uint32_t Protect; } mbi = {(void*)hsp, 4096, 0x1000, 0xFF};  // stub
++                    if (true /* VirtualQuery stub */ &&
++                        mbi.State == 0x1000) {
+                       uint8_t* rend = static_cast<uint8_t*>(mbi.BaseAddress) + mbi.RegionSize;
+                       uint8_t* send = hsp + 0x2800u;
+                       if (send > rend) send = rend;

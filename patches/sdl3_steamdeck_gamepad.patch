@@ -1,0 +1,22 @@
+diff --git a/src/io/SDL_iostream.c b/src/io/SDL_iostream.c
+index 4f3b0606a..b010fa433 100644
+--- a/src/io/SDL_iostream.c
++++ b/src/io/SDL_iostream.c
+@@ -1,3 +1,4 @@
++#define _GNU_SOURCE
+ /*
+   Simple DirectMedia Layer
+   Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
+diff --git a/src/joystick/SDL_gamepad.c b/src/joystick/SDL_gamepad.c
+index 71e7b2524..6d4b3000a 100644
+--- a/src/joystick/SDL_gamepad.c
++++ b/src/joystick/SDL_gamepad.c
+@@ -3264,7 +3264,7 @@ bool SDL_ShouldIgnoreGamepad(Uint16 vendor_id, Uint16 product_id, Uint16 version
+     // See joystick/darwin/SDL_iokitjoystick.c and hidapi/mac/hid.c.
+ #else
+     const char *hint = SDL_getenv_unsafe("SDL_GAMECONTROLLER_ALLOW_STEAM_VIRTUAL_GAMEPAD");
+-    bool allow_steam_virtual_gamepad = SDL_GetStringBoolean(hint, false);
++    bool allow_steam_virtual_gamepad = true; /* GoldenEye Steam Deck fix: always allow steam virtual gamepad */
+ #ifdef SDL_PLATFORM_WIN32
+     if (allow_steam_virtual_gamepad && WIN_IsWine()) {
+         // We are launched by Steam and running under Proton or Wine

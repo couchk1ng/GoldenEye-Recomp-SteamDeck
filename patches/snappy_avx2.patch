@@ -1,0 +1,18 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cd71a47..34d79f9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -440,3 +440,4 @@ if(SNAPPY_INSTALL)
+     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+   )
+ endif(SNAPPY_INSTALL)
++target_compile_options(snappy PRIVATE -mavx2)
+diff --git a/snappy.cc b/snappy.cc
+index 8dc3713..c0abc7a 100644
+--- a/snappy.cc
++++ b/snappy.cc
+@@ -1,3 +1,4 @@
++#include <immintrin.h>
+ // Copyright 2005 Google Inc. All Rights Reserved.
+ //
+ // Redistribution and use in source and binary forms, with or without
