@@ -4,7 +4,6 @@ A fully native Vulkan build of GoldenEye 007 (Xbox 360 XBLA) for Steam Deck.
 
 **No Proton. No VKD3D. No emulation.** Runs directly on RADV VANGOGH at ~60 FPS.
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow)](https://buymeacoffee.com/couchk1ng)
 
 ## What makes this different?
 
